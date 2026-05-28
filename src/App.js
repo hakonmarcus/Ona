@@ -7,6 +7,9 @@ import HUD from "./components/HUD";
 import { getTimeInfo, getTwilightFactor } from "./state/gameState";
 import { MAP_CONFIG } from "./utils/doorUtils";
 import MapEditor from "./components/MapEditor";
+import { createHellbat } from "./noms";
+import { updateAgents } from "./noms/agentBehaviour";
+
 
 
 export default function App() {
@@ -29,8 +32,13 @@ export default function App() {
 
   const [editorOpen, setEditorOpen] = useState(false);
 
+  const [agents, setAgents] = useState([
+    createHellbat(167, 56),
+    createHellbat(183, 56),
+  ]);
+  console.log("agents:", agents);
 
-  console.log("tick:", tick, "twilight:", twilight, "time:", getTimeInfo(tick).timeStr);
+  //console.log("tick:", tick, "twilight:", twilight, "time:", getTimeInfo(tick).timeStr);
 
 
   useEffect(() => {
@@ -39,6 +47,10 @@ export default function App() {
       setPendingPos(null);
     }
   }, [currentMap, pendingPos]);
+
+  useEffect(() => {
+    updateAgents(agents, pos, currentMap, isNight, undefined, setAgents);
+  }, [pos]);
 
   useKeyboard(
     currentMapRef,
@@ -68,6 +80,7 @@ export default function App() {
       frame={frame}
       flicker={flicker}
       twilight={effectiveTwilight}
+      agents={agents}
     />
 
       <HUD tick={tick} pos={pos} onEditorOpen={() => setEditorOpen(true)} />

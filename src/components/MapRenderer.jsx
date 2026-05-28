@@ -10,7 +10,7 @@ import { getTileData } from "../data/tiles";
 const VIEW_W = 40;
 const VIEW_H = 25;
 
-export default function MapRenderer({ currentMap, pos, frame, twilight, flicker}) {
+export default function MapRenderer({ currentMap, pos, frame, twilight, flicker, agents}) {
   const mapWidth = currentMap[0].length;
   const mapHeight = currentMap.length;
 
@@ -36,14 +36,23 @@ export default function MapRenderer({ currentMap, pos, frame, twilight, flicker}
 
               const visibility = getVisibility(mapX, mapY, pos, twilight, currentMap, flicker, frame);
               const lampFlicker = flicker && Math.random() < 0.2;
-              const animatedChar = tile === "◉"
+
+              const agent = agents.find(a => a.x === mapX && a.y === mapY && a.visible);
+
+              const animatedChar = agent
+                ? (frame % 2 === 0 ? agent.symbol : agent.altSymbol)
+                : tile === "◉"
                 ? (lampFlicker ? "○" : "◉")
                 : isWater
                 ? (isFoam ? "░" : isWave ? "≈" : "~")
                 : tile;
 
               const tileData = getTileData(animatedChar);
-              const color = isPlayer ? "#55cc55" : tileData.color;
+
+              const color = isPlayer ? "#55cc55" 
+                : agent
+                ? agent.color
+                : tileData.color;
 
               return (
                 <span key={screenX} style={{ color, opacity: visibility }}>
